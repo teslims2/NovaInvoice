@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String    @id @default(cuid())
+  stellarAddress  String    @unique
+  role            Role      @default(ISSUER)
+  isVerified      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  invoices        Invoice[]
+  investments     Investment[]
+  trades          Trade[]
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  issuerId        String
+  issuer          User          @relation(fields: [issuerId], references: [id])
+  amount          Float
+  currency        String        @default("USDC")
+  dueDate         DateTime
+  description     String
+  debtorName      String
+  debtorAddress   String?
+  status          InvoiceStatus @default(PENDING)
+  discountRate    Float         @default(0)
+  txHash          String?
+  contractId      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  investments     Investment[]
+  trades          Trade[]
+  repayments      Repayment[]
+}
+
+model Investment {
+  id          String            @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice           @relation(fields: [invoiceId], references: [id])
+  investorId  String
+  investor    User              @relation(fields: [investorId], references: [id])
+  amount      Float
+  fundedAt    DateTime          @default(now())
+  txHash      String?
+  status      InvestmentStatus  @default(ACTIVE)
+}
+
+model Trade {
+  id          String      @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice     @relation(fields: [invoiceId], references: [id])
+  sellerId    String
+  seller      User        @relation(fields: [sellerId], references: [id])
+  price       Float
+  discount    Float
+  status      TradeStatus @default(OPEN)
+  createdAt   DateTime    @default(now())
+  txHash      String?
+}
+
+model Repayment {
+  id          String          @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice         @relation(fields: [invoiceId], references: [id])
+  amount      Float
+  paidAt      DateTime        @default(now())
+  txHash      String?
+  status      RepaymentStatus @default(PENDING)
+}
+
+enum Role {
+  ISSUER
+  INVESTOR
+  ADMIN
+}
+
+enum InvoiceStatus {
+  PENDING
+  VERIFIED
+  FUNDED
+  TRADING
+  REPAID
+  DEFAULTED
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  REPAID
+  DEFAULTED
+}
+
+enum TradeStatus {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum RepaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
