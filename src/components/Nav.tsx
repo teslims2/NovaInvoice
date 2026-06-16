@@ -6,10 +6,13 @@ import ConnectWallet from "./ConnectWallet";
 import { useWallet } from "@/context/WalletContext";
 
 const links = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/invoices/new", label: "New Invoice" },
   { href: "/invoices", label: "Invoices" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/trading", label: "Trading" },
   { href: "/repayments", label: "Repayments" },
+  { href: "/wallet", label: "Wallet" },
   { href: "/admin", label: "Admin" },
 ];
 
